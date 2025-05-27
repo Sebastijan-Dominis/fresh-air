@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
+import styles from "./App.module.css";
 
 const WEATHER_API_KEY = "3a8d9360da8088d38d71ff635e554318";
 
@@ -8,23 +9,85 @@ function App() {
   const lat = coordinates?.[0];
   const lon = coordinates?.[1];
 
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [airPollution, setAirPollution] = useState(null);
+
   useEffect(
     function () {
       if (!lat || !lon) return;
-      console.log(lat);
-      console.log(lon);
+
+      const controller = new AbortController();
+
+      async function fetchWeatherData() {
+        setIsLoading(true);
+        setError("");
+        setAirPollution(null);
+        try {
+          const airData = await axios.get(
+            `https://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${WEATHER_API_KEY}`,
+            { signal: controller.signal }
+          );
+          const pm2_5 = airData.data.list[0].components.pm2_5;
+          setAirPollution(pm2_5);
+        } catch (err) {
+          if (axios.isCancel?.(err)) {
+            console.log(err.message);
+          } else {
+            setError(err.message);
+            console.error(err);
+          }
+        } finally {
+          setIsLoading(false);
+        }
+      }
+
+      fetchWeatherData();
+
+      return function () {
+        controller.abort();
+      };
     },
     [lat, lon]
   );
 
   return (
-    <div>
-      <Main setCoordinates={setCoordinates} />
+    <div className={styles.container}>
+      <Header />
+      <LocationSearch
+        setCoordinates={setCoordinates}
+        setAirPollution={setAirPollution}
+      />
+      {airPollution && <AirPollution pm2_5={airPollution} />}
+      {isLoading && <Loader>Loading data...</Loader>}
+      {error && <Error />}
     </div>
   );
 }
 
-function Main({ setCoordinates }) {
+function Header() {
+  return <h1 className={styles.header}>I love breathing!</h1>;
+}
+
+function AirPollution({ pm2_5 }) {
+  let emoji;
+  if (pm2_5 < 5) emoji = "🙂";
+  else if (pm2_5 < 10) emoji = "😐";
+  else if (pm2_5 < 15) emoji = "😕";
+  else if (pm2_5 < 25) emoji = "🙁";
+  else if (pm2_5 < 35) emoji = "😫";
+  else if (pm2_5 < 50) emoji = "😭";
+  else if (pm2_5 < 80) emoji = "🤢";
+  else emoji = "💀";
+
+  return (
+    <p className={styles.pollutionInfo}>
+      The pm2.5 is {pm2_5} in this area. {emoji}
+    </p>
+  );
+}
+
+function LocationSearch({ setCoordinates, setAirPollution }) {
   const [location, setLocation] = useState("");
   const [foundLocations, setFoundLocations] = useState("");
   const [error, setError] = useState("");
@@ -32,10 +95,11 @@ function Main({ setCoordinates }) {
 
   useEffect(
     function () {
+      setAirPollution("");
+      setFoundLocations("");
       const controller = new AbortController();
 
       async function fetchLocation() {
-        setFoundLocations("");
         setError("");
         setIsLoading(true);
         try {
@@ -44,7 +108,6 @@ function Main({ setCoordinates }) {
             { signal: controller.signal }
           );
           setFoundLocations(requestedLocation.data);
-          console.log(requestedLocation.data);
         } catch (err) {
           if (axios.isCancel?.(err)) {
             console.log("Fetch aborted ", err.message);
@@ -70,12 +133,13 @@ function Main({ setCoordinates }) {
   );
 
   return (
-    <main>
+    <div className={styles.geoSearchContainer}>
       <input
         type="text"
         value={location}
         onChange={(e) => setLocation(e.target.value)}
-        placeholder="Choose a location"
+        placeholder="Choose a location..."
+        className={styles.input}
       ></input>
       {foundLocations && (
         <LocationDisplay
@@ -83,15 +147,15 @@ function Main({ setCoordinates }) {
           setCoordinates={setCoordinates}
         />
       )}
-      {isLoading && <Loader />}
+      {isLoading && <Loader>Searching for locations...</Loader>}
       {error && <Error error={error} />}
-    </main>
+    </div>
   );
 }
 
 function LocationDisplay({ foundLocations, setCoordinates }) {
   return (
-    <ul>
+    <ul className={styles.locations}>
       {foundLocations.map((location) => (
         <Location
           display_name={location.display_name}
@@ -106,18 +170,21 @@ function LocationDisplay({ foundLocations, setCoordinates }) {
 
 function Location({ display_name, setCoordinates, location }) {
   return (
-    <li onClick={() => setCoordinates([location.lat, location.lon])}>
+    <li
+      onClick={() => setCoordinates([location.lat, location.lon])}
+      className={styles.location}
+    >
       {display_name}
     </li>
   );
 }
 
-function Loader() {
-  return <p>Loading...</p>;
+function Loader({ children }) {
+  return <p className={styles.loader}>{children}</p>;
 }
 
 function Error({ error }) {
-  return <p>{error}</p>;
+  return <p className={styles.error}>{error}</p>;
 }
 
 export default App;

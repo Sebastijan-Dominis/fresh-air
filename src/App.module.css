@@ -1,0 +1,57 @@
+.container {
+  background-color: rgba(140, 244, 12, 0.35);
+  height: 100vh;
+  width: 100vw;
+}
+
+.header {
+  display: flex;
+  justify-content: center;
+  color: rgb(50, 50, 250);
+  font-weight: bold;
+  padding-top: 2rem;
+}
+
+.geoSearchContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.input {
+  padding: 1rem 2rem;
+  background-color: rgba(140, 244, 12, 0.6);
+  border-color: rgb(50, 50, 250);
+  border-radius: 9999px;
+  margin-top: 2rem;
+  width: 12rem;
+}
+
+.locations {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  row-gap: 0.5rem;
+  color: rgb(50, 50, 250);
+  font-weight: bold;
+}
+
+.location {
+  cursor: pointer;
+}
+
+.pollutionInfo {
+  display: flex;
+  justify-content: center;
+  color: rgb(50, 50, 250);
+  font-weight: bold;
+  margin-top: 2rem;
+  font-size: x-large;
+}
+
+.loader,
+.error {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+}
