@@ -2,7 +2,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import styles from "./App.module.css";
 
-const WEATHER_API_KEY = "3a8d9360da8088d38d71ff635e554318";
+const WEATHER_API_KEY = import.meta.env.VITE_WEATHER_API_KEY;
 
 function App() {
   const [coordinates, setCoordinates] = useState(null);
@@ -129,7 +129,7 @@ function LocationSearch({ setCoordinates, setAirPollution }) {
         controller.abort();
       };
     },
-    [location]
+    [location, setAirPollution]
   );
 
   return (
