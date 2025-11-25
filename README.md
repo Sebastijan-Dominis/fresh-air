@@ -10,6 +10,8 @@ A small, fast React app that helps you check PM2.5 air pollution levels for any 
 - [Screenshots](#screenshots)
 - [Scripts](#scripts)
 - [License](#license)
+- [Contributing](#contributing)
+- [Author & Contact](#author--contact)
 
 ## Tech stack
 - React 19 + Vite
@@ -77,8 +79,9 @@ npm run dev
 ## License
 See the `LICENSE` file in this repository for license details.
 
-**Contributions**
+## Contributing
 - Feel free to contribute if you wish. Open an issue or submit a pull request with a clear description of the change.
 
-**Contact**
-- Author: repository owner (see repository metadata).
+## Author & Contact
+- Author: Sebastijan Dominis
+- Contact: sebastijan.dominis99@gmail.com
